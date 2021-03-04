@@ -2,6 +2,11 @@
 
 The following repo contains the database search systems used for the analysis provided in our paper "Benchmarking Database Search Systems: a DB-NL Perspective".
 
+## Citation
+
+If you use THOR code, please cite the following work:
+> O. Gkini, T. Belmpas, G. Koutrika, Y. Ioannidis. An In-Depth Benchmarking of Text-to-SQL Systems. ACM SIGMOD 2021.
+
 
 ## Contents
 
