@@ -1,0 +1,15 @@
+# Ignore classpath
+.classpath
+
+# Ignore bin & build & lib & .gradle
+bin
+build
+# lib
+.idea
+.vscode
+.gradle
+.settings
+.project
+
+# Compiled class file
+*.class

@@ -1,0 +1,8 @@
+# Dont add gradle / vs code settings 
+.gradle
+.settings
+.vscode
+bin
+build
+gradle.properties
+.classpath

@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'   // The Plugin that creates a standalone JAR
+}
+
+mainClassName = 'architecture.CommandInterface'
+
+group = ''
+version = ''
+sourceCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
+
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8'   // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
+
+    // For the NLP Stanford Parser
+    compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.9.2', classifier: 'models'
+    compile group: 'edu.stanford.nlp', name: 'stanford-parser', version: '3.9.2'
+
+    // Jason
+    compile group: 'org.json', name: 'json', version: '20180813'
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+
+
+    // Local Libs for lematizer.
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+// Change run task's default input to System.in
+run {
+    standardInput = System.in
+}
+
+
+// source : https://stackoverflow.com/questions/25309250/execute-gradle-shadowjar-task-twice-in-same-build-file
+task thorJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = "shadow"
+    manifest.attributes 'Main-Class': 'architecture.CommandInterface'
+    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
+    configurations = [project.configurations.runtime]
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    destinationDir = file("../../thor/systemsJars")  // Set output to be the SystemsJars folder of thor
+}
+
+// The testing jar
+task testJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = "shadow"
+    manifest.attributes 'Main-Class': 'testing.TestingMain'
+    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
+    configurations = [project.configurations.runtime]
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}

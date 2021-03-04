@@ -1,0 +1,72 @@
+plugins {
+	id 'com.github.johnrengelman.shadow' version '4.0.4' // The Plugin that creates a standalone JAR.
+	id 'java'
+	id 'application'
+}
+
+mainClassName = 'spark.SparkApplication'
+// mainClassName = 'spark.testing.TestingMain'
+
+group = ''
+sourceCompatibility = 1.8
+
+repositories {
+  	mavenCentral()
+}
+
+dependencies {
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+	compile group: 'log4j', name: 'log4j', version: '1.2.17'
+	compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+	compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
+
+	implementation 'com.google.code.gson:gson:2.8.5'
+
+    // Local Libs
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+// Change run task's default input to System.in
+run {
+  	standardInput = System.in
+}
+
+
+// Check if we need to fetch a dependency
+task sharedCheck() {
+    // Create a file representing the shared lib file
+    def name = "shared-0.1.0"
+    def sharedLib = new File("lib/${name}.jar")
+
+    // If shared Lib does not exists then fetch it from gh
+    if ( !sharedLib.exists() ) {
+        println "Fetch SharedLib from github and place it in lib folder"
+    }
+    else {
+        println "SharedLib present!"
+    }
+}
+
+// Make java compile task depends on fetch shared lib from github if not existing
+compileJava.dependsOn( sharedCheck )
+
+
+
+// source : https://stackoverflow.com/questions/25309250/execute-gradle-shadowjar-task-twice-in-same-build-file
+task thorJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = "shadow"
+    manifest.attributes 'Main-Class': 'spark.SparkApplication'
+    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
+    configurations = [project.configurations.runtime]
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    destinationDir = file("../../thor/systemsJars")  // Set output to be the SystemsJars folder of thor
+}
+
+// The testing jar
+task testJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = "shadow"
+    manifest.attributes 'Main-Class': 'spark.testing.TestingMain'
+    from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)
+    configurations = [project.configurations.runtime]
+    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
